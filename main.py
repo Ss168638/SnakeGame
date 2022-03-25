@@ -4,7 +4,7 @@ import random
 pygame.init()
 
 width , height = 400, 400
-FRAME_RATE = 3
+FRAME_RATE = 4
 SCALE = 20
 iterator = []   #iterator for Grid Points
 #storing random values to generate snake food
@@ -22,8 +22,8 @@ class SNAKE:
         self.xwidth = xwidth
         self.yheight = yheight
         self.total = 0
-        self.color = (255, 0, 0)
-        self.foodcolor = (0, 0, 255)
+        self.color = (255,255,51)
+        self.foodcolor = (220,20,60)
         self.tail = []
         self.foodx = 0
         self.foody = 0
@@ -68,6 +68,7 @@ class SNAKE:
         index = iterator[value]
         self.foodx, self.foody, self.foodwidth, self.foodheight = self.grid[index]
         rect = pygame.Rect(self.foodx, self.foody, self.foodwidth, self.foodheight)
+        self.foodcolor = (random.randint(0, 255),random.randint(0, 255),random.randint(0, 255))
         pygame.draw.rect(win, self.foodcolor, rect)
         win.blit(win, (0, 0))
         pygame.display.flip()
@@ -78,6 +79,7 @@ class SNAKE:
         foodrect = pygame.Rect(self.foodx, self.foody, self.foodwidth, self.foodheight)
         if snakerect.colliderect(foodrect) == True:
             self.total += 1
+            self.color = self.foodcolor
             return True
         return False
     #check snake head collision with body
@@ -98,7 +100,7 @@ class SNAKE:
         for rows in range(0, width//SCALE, 1):
             for cols in range(0, height//SCALE, 1):
                 rect = pygame.Rect(rows*size, cols*size, size, size)
-                pygame.draw.rect(surface, (0, 255, 0), rect, 1)
+                pygame.draw.rect(surface, (0, 100, 0), rect, 1)
                 self.grid.append(rect)
 
     #drawing body of snake
@@ -107,7 +109,7 @@ class SNAKE:
             self.tail[i] = self.tail[i+1]
         self.tail = self.tail[:self.total]
         for tail in self.tail:
-            pygame.draw.rect(win, (230, 120, 210), tail)
+            pygame.draw.rect(win, self.color, tail)
             win.blit(win, (0, 0))
             pygame.display.flip()
 
@@ -142,7 +144,7 @@ def eventloop():
                 elif event.key == pygame.K_RIGHT and left == False:
                     up, left, down, right = 0, 0, 0, 1
                     print("Snake moved right!")
-                    
+
         snake.eaten = snake.foodeaten()
         if (snake.eaten == True):
             snake.eaten == False
