@@ -124,30 +124,37 @@ class SNAKE:
             win.blit(win, (0, 0))
             pygame.display.flip()
 
-    def get_score(self):
+    def get_score(self, score):
         #score surface
-        score_surf = text_font.render(f"Score : {self.SCORE}", False, "Green")
+        score_surf = text_font.render(f"Score : {score}", False, "Green")
         score_rect = score_surf.get_rect(center = (width/2, SCALE))
         return score_surf, score_rect
     def declare_winner(self):
         winner_surf = text_font.render("Hurray!!!, You Won.", False, "Green")
-        winner_rect = winner_surf.get_rect(center = (width/2, height/2))
+        winner_rect = winner_surf.get_rect(center = (width/2 + SCALE, height/6))
         return winner_surf, winner_rect
 
     def declare_loser(self):
         loser_surf = text_font.render("Awwhh!!!, You Lose.", False, "Green")
-        loser_rect = loser_surf.get_rect(center = (width/2, height/2))
+        loser_rect = loser_surf.get_rect(center = (width/2 + SCALE, height/6))
         return loser_surf, loser_rect
 
     def start_game_text(self):
         if (self.SCORE > 0 and self.SCORE < 45) or self.SCORE == 45:
             start_surf = text_font.render("Press SPACE to Start the Game Again.", False, "Green")
-            start_rect = start_surf.get_rect(center = (width/2, height/2 + SCALE))
+            start_rect = start_surf.get_rect(center = (width/2, height/2 + SCALE * 5))
             return start_surf, start_rect
         else:
             start_surf = text_font.render("Press SPACE to Start the Game.", False, "Green")
-            start_rect = start_surf.get_rect(center = (width/2, height/2 + SCALE))
+            start_rect = start_surf.get_rect(center = (width/2, height/2 + SCALE * 5))
             return start_surf, start_rect
+    
+    #snake image
+    def draw_snake_img(self):
+        snake_surf = pygame.image.load("SnakeGame\snake.png").convert_alpha()
+        snake_surf = pygame.transform.scale(snake_surf, (width/2, height/2 - SCALE))
+        snake_rect = snake_surf.get_rect(center = (width/2 + SCALE, height/2 - SCALE))
+        return snake_surf, snake_rect
 
 #Main event Loop for Game
 def eventloop():
@@ -175,12 +182,13 @@ def eventloop():
                 elif event.key == pygame.K_RIGHT and left == False:
                     up, left, down, right = 0, 0, 0, 1
                     print("Snake moved right!")
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and game_active == False:
+                if snake.SCORE > 0: snake.SCORE = 0
                 game_active = True
         if game_active:
             snake.drawgrid(grid_surf)
             WIN.blit(grid_surf, (0, 0))
-            score_surf, score_rect = snake.get_score()
+            score_surf, score_rect = snake.get_score(snake.SCORE)
             WIN.blit(score_surf, score_rect)
             
             snake.eaten = snake.foodeaten()
@@ -227,14 +235,18 @@ def eventloop():
             pygame.display.flip()
         else:
             WIN.fill('Yellow')
-            score_surf, score_rect = snake.get_score()
-            WIN.blit(score_surf, score_rect)
+            snake_surf, snake_rect = snake.draw_snake_img()
+            WIN.blit(snake_surf, snake_rect)
             if snake.SCORE == 45:
+                score_surf, score_rect = snake.get_score(snake.SCORE)
+                WIN.blit(score_surf, score_rect)
                 winner_surf, winner_rect = snake.declare_winner()
                 WIN.blit(winner_surf, winner_rect)
                 start_surf, start_rect = snake.start_game_text()
                 WIN.blit(start_surf, start_rect)
             elif snake.SCORE > 0 and snake.SCORE < 45:
+                score_surf, score_rect = snake.get_score(snake.SCORE)
+                WIN.blit(score_surf, score_rect)
                 loser_surf, loser_rect = snake.declare_loser()
                 WIN.blit(loser_surf, loser_rect)
                 start_surf, start_rect = snake.start_game_text()
@@ -242,10 +254,6 @@ def eventloop():
             else:
                 start_surf, start_rect = snake.start_game_text()
                 WIN.blit(start_surf, start_rect)
-            snake.SCORE = 0
-            snake.x = SCALE
-            snake.y = SCALE
-            up, left, down, right = 0, 0, 0, 0
 
         clock.tick(snake.FRAME_RATE)
         pygame.display.update()
